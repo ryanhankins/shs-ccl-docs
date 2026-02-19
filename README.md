@@ -211,7 +211,6 @@ srun --ntasks-per-node=4 --cpus-per-task=72 --network=disable_rdzv_get ./all_red
 ---
 
 ## Links/Resources
-- [HPE Nvidia CSCS Tiger Team - Optimized NCCL on Slingshot Configuration - Special thank you to Jonathan Coles from Eth Zurich](https://github.com/jpcoles-cscs/nccl-stack-constellation-benchmarks)
 - [HPE NCCL Application Note](https://hpe.seismic.com/Link/Content/DCQ6423JRB9jJ8hHjbQ6Cgdccd2G)
 - [NVIDIA NCCL](https://github.com/NVIDIA/nccl)
 - [ROCm RCCL](https://github.com/ROCm/rccl)
