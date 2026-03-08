@@ -54,7 +54,7 @@ For the best performance and stability, always use the most recent version of th
 
 ### OFI (Libfabric) Backend for RCCL
 
-To enable high-performance RDMA, you must use the OFI Plug-In for Libfabric-to-RCCL. This open-source backend can be downloaded from GitHub at `https://github.com/ROCm/aws-ofi-rccl`. HPE and AMD have collaborated to ensure this plugin works with Slingshot NICs. Currently, users must build the code from the repository, as HPE does not provide pre-packaged RPMs.
+To enable high-performance RDMA, you must use the OFI Plug-In for Libfabric-to-RCCL. This open-source backend can be downloaded from GitHub at `https://github.com/aws/aws-ofi-nccl`. HPE and AMD have collaborated to ensure this plugin works with Slingshot NICs. Currently, users must build the code from the repository, as HPE does not provide pre-packaged RPMs.
 
 ### GPU Driver and User Stack Compatibility
 
@@ -92,7 +92,7 @@ Several environment variables, though prefixed with `NCCL_`, are required for AM
 
 -----
 
-## Installing RCCL and Building `aws-ofi-rccl`
+## Installing RCCL and Building `aws-ofi-nccl`
 
 Most ROCm installations include RCCL, so you should use the pre-installed version and build the OFI plugin for Libfabric support. Below is an example script to build the plugin and the `rccl-tests` utility.
 
@@ -105,25 +105,23 @@ export AWS_OFI_PLUGIN_HOME=/path/to/install/aws-ofi-plugin
 
 # Build the OFI Plugin
 echo "BUILDING OFI PLUGIN"
-git clone --recurse-submodules https://github.com/ROCmSoftwarePlatform/aws-ofi-rccl.git
-cd aws-ofi-rccl
+git clone https://github.com/aws/aws-ofi-nccl.git ${BASE_DIR}/aws-ofi-nccl
+cd ${BASE_DIR}/aws-ofi-nccl
+git checkout v1.18.0
 ./autogen.sh
-CC=cc CXX=CC ./configure \
-    --with-libfabric=${OFI_HOME} \
-    --with-hip=${ROCM_HOME} \
-    --with-mpi=${MPI_HOME} \
-    --prefix=${AWS_OFI_PLUGIN_HOME}
-make && make install
+CC=gcc ./configure \
+    --with-libfabric=${LIBFABRIC_PATH} \
+    --with-rocm=${ROCM_PATH} \
+    --with-mpi=${MPI_HOME}
+make
 cd ..
-rm -rf aws-ofi-rccl/
+rm -rf aws-ofi-nccl
 
 # Build RCCL Tests
 echo "BUILDING RCCL TESTS"
-git clone https://github.com/ROCmSoftwarePlatform/rccl-tests.git
-cd rccl-tests
-module load PrgEnv-amd rocm
-cmake -DCMAKE_SYSTEM_NAME=CrayLinuxEnvironment -DUSE_MPI=ON -DROCM_PATH=${ROCM_PATH} .
-make
+git clone https://github.com/ROCm/rccl-tests.git ${BASE_DIR}/rccl-tests
+cd ${BASE_DIR}/rccl-tests
+make MPI=1 MPI_HOME=${MPI_HOME} CXX=hipcc
 cd ..
 ```
 
