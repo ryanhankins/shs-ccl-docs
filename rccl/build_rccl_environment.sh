@@ -152,7 +152,7 @@ if [ "$SKIP_TESTS" = false ]; then
         echo "Listing rccl-tests directory"
         pwd
         ls -la || true
-        MPICC_PATH=${CRAY_MPICH_PREFIX}/bin/mpicc"
+        MPICC_PATH="${CRAY_MPICH_PREFIX}/bin/mpicc"
         echo "Using MPICC at $MPICC_PATH"
         make MPI=1 MPI_HOME="${CRAY_MPICH_PREFIX}" CXX=hipcc -j"$PARALLELISM" || true
         popd
