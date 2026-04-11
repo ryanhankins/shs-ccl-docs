@@ -128,6 +128,16 @@ The scripts can be run with no command line arguments, or one can override the d
 > The build scripts must be executed on a **compute node** (e.g. via `srun --pty bash`
 > or an `sbatch` job), because the required modules (`CUDA_HOME`, `ROCM_PATH`,
 > `MPICH_DIR`) are only available in the compute-node environment.
+>
+> **Batch jobs and modules:** On some HPE/Cray systems the `module` command is not
+> available in `sbatch` scripts unless the Lmod init is explicitly sourced. If you see
+> `bash: module: command not found` in your job output, add the following line before
+> any `module load` calls in your batch script:
+> ```bash
+> source /opt/cray/pe/lmod/lmod/init/bash
+> ```
+> Alternatively, use `srun --pty bash` to enter an interactive compute-node shell where
+> `module` is already initialized from your login environment.
 
 ---
 
