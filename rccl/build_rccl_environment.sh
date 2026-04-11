@@ -12,6 +12,7 @@ BASE_DIR=$(pwd)
 LIBFABRIC_PATH="/opt/cray/libfabric/1.22.0"
 PARALLELISM=16
 ROCM_VERSION="rocm-6.4.0"
+AWS_OFI_NCCL_VERSION="v1.19.0"
 SKIP_CLONE=false
 SKIP_TESTS=false
 LOG_DIR="$BASE_DIR/logs"
@@ -25,6 +26,7 @@ usage() {
     echo "  -l, --libfabric-path <path>   Path to libfabric (default: $LIBFABRIC_PATH)"
     echo "  -p, --parallelism <threads>   Number of threads for parallel builds (default: $PARALLELISM)"
     echo "  -r, --rccl-version <version>  RCCL ROCm version to use (default: $ROCM_VERSION)"
+    echo "  -a, --aws-version <version>   AWS OFI NCCL plugin version to build (default: $AWS_OFI_NCCL_VERSION)"
     echo "  --log-dir <path>              Directory to save the build log file (default: <base-dir>/logs)"
     echo "  --skip-clone                  Skip cloning repositories (use existing directories)"
     echo "  --skip-tests                  Skip building rccl-tests"
@@ -32,7 +34,7 @@ usage() {
     exit 0
 }
 
-ARGS=$(getopt -o b:l:p:r:h --long base-dir:,libfabric-path:,parallelism:,rccl-version:,log-dir:,skip-clone,skip-tests,help -n "$0" -- "$@")
+ARGS=$(getopt -o b:l:p:r:a:h --long base-dir:,libfabric-path:,parallelism:,rccl-version:,aws-version:,log-dir:,skip-clone,skip-tests,help -n "$0" -- "$@")
 if [ $? -ne 0 ]; then usage; fi
 eval set -- "$ARGS"
 
@@ -42,6 +44,7 @@ while true; do
         -l|--libfabric-path) LIBFABRIC_PATH="$2"; shift 2 ;;
         -p|--parallelism) PARALLELISM="$2"; shift 2 ;;
         -r|--rccl-version) ROCM_VERSION="$2"; shift 2 ;;
+        -a|--aws-version) AWS_OFI_NCCL_VERSION="$2"; shift 2 ;;
         --log-dir) LOG_DIR="$2"; shift 2 ;;
         --skip-clone) SKIP_CLONE=true; shift ;;
         --skip-tests) SKIP_TESTS=true; shift ;;
@@ -63,7 +66,7 @@ echo "Build log: $LOG_FILE"
 echo "============================="
 
 # Install locations (best-effort paths)
-RCCL_HOME="$BASE_DIR/rccl/build"
+RCCL_HOME="$BASE_DIR/rccl/build/release"
 HWLOC_HOME="$BASE_DIR/hwloc"
 AWS_OFI_RCCL_HOME="$BASE_DIR/aws-ofi-rccl"
 RCCL_TESTS_HOME="$BASE_DIR/rccl-tests/build"
@@ -76,6 +79,7 @@ Log Directory: $LOG_DIR
 Libfabric Path: $LIBFABRIC_PATH
 Parallelism: $PARALLELISM
 RCCL Version: $ROCM_VERSION
+AWS OFI NCCL Plugin Version: $AWS_OFI_NCCL_VERSION
 Skip Cloning: $SKIP_CLONE
 Skip rccl-tests: $SKIP_TESTS
 =============================
@@ -122,7 +126,7 @@ if [ "$SKIP_CLONE" = false ]; then
     fi
 fi
 if [ -d "$BASE_DIR/aws-ofi-nccl" ]; then
-    pushd "$BASE_DIR/aws-ofi-nccl" && git checkout "v1.19.0" || { echo "Failed to checkout aws-ofi-nccl tag v1.19.0"; popd; exit 1; }
+    pushd "$BASE_DIR/aws-ofi-nccl" && git checkout "$AWS_OFI_NCCL_VERSION" || { echo "Failed to checkout aws-ofi-nccl tag $AWS_OFI_NCCL_VERSION"; popd; exit 1; }
     ./autogen.sh || true
     CC=gcc ./configure --with-libfabric="$LIBFABRIC_PATH" --with-hwloc="$BASE_DIR" --with-rocm="$ROCM_PATH" \
         --prefix="$AWS_OFI_RCCL_HOME" || true
@@ -173,7 +177,8 @@ echo "Build completed successfully!"
 echo "============================="
 echo "RCCL_HOME: $RCCL_HOME"
 echo "HWLOC_HOME: $HWLOC_HOME"
-echo "AWS_OFI_RCCL_HOME: $AWS_OFI_RCCL_HOME"
+echo "AWS_OFI_RCCL_HOME (install prefix): $AWS_OFI_RCCL_HOME"
+echo "  -> add $AWS_OFI_RCCL_HOME/lib to LD_LIBRARY_PATH"
 echo "RCCL_TESTS_HOME: $RCCL_TESTS_HOME"
 
 echo "To verify installation, inspect the log and built artifacts under $BASE_DIR"
