@@ -8,7 +8,7 @@ This repository provides utility scripts to simplify the process of setting up t
 
 Setting up NCCL or RCCL on Slingshot involves several steps, including downloading source code, configuring dependencies, and compiling libraries. These scripts ameliorate the complexities by:
 
-- Bringing together the lessons learned from a 4 month collaboration between HPE, Nvidia, and CSCS which addressed collective communications performance at scale, performance variability, and workload hangs.
+- Bringing together the lessons learned from a 4 month collaboration between HPE, NVIDIA, AMD, and customers which addressed collective communications performance at scale, performance variability, and workload hangs.
 - Automating the download and build process for [NVIDIA NCCL](https://github.com/NVIDIA/nccl) or [ROCm RCCL](https://github.com/ROCm/rccl), the [AWS OFI NCCL Plugin](https://github.com/aws/aws-ofi-nccl), and [NCCL Tests](https://github.com/NVIDIA/nccl-tests) or [RCCL Tests](https://github.com/ROCm/rccl-tests) (all optional).
 - Parameterizing dependency versions like CUDA, ROCm, and Libfabric to make it easier to compose custom experiments with different library versions.
 - The scripts always generate log files, so if you run out of scroll back buffer or there is a subtle difference in the build output, you have a better chance of catching the issue/behavior.
